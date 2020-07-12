@@ -2,6 +2,7 @@ require('dotenv').config();
 var fs = require('fs');
 const readline = require('readline');
 var quotes =[];
+var commands = [{"Command": "Com", "Response": "Rep"}];
 
 const rl = readline.createInterface({
     input: fs.createReadStream('quotes.txt'),
@@ -12,6 +13,23 @@ rl.on('line', (line) => {
     console.log(line);
     quotes.push(line);
 });
+
+fs.readFile('commands.txt', (err, data) => {
+    if (err) throw err;
+    let command = JSON.parse(data);
+    console.log(command);
+    commands = command;
+});
+
+// const r2 = readline.createInterface({
+//     input: fs.createReadStream('commands.txt'),
+//     output: process.stdout,
+//     terminal: false
+// });
+// r2.on('line', (line) => {
+//     JSON.parse(line);
+//     console.log(line);
+// });
 // const tmi = require('tmi.js');
 // const client = new tmi.Client({
 // 	options: { debug: true },
@@ -47,22 +65,25 @@ var ComfyJS = require("comfy.js");
 ComfyJS.onCommand = ( user, command, message, flags, extra ) => {
   if(user.toLowerCase() == 'therealmartybot') return;
 
-  if(command === "discord" ) {
-    ComfyJS.Say('/me We\'ve a fun Discord server where we say things and do stuff. Join us! https://discord.gg/XcNx3Aw');
+  if(RespondToCommand(command, message, user)){
+    console.log("Responding to basic command "+command);
   }
-  else if(command == "youtube"){
-    ComfyJS.Say('/me Panash tries to edit and put up videos at https://www.youtube.com/channel/UCQKfmsTfUdJZW4EqfsWC2lQ?view_as=subscriber');
-  }
-  else if(command === "lurk"){
-    ComfyJS.Say('/me Poof! '+user+' has disappeared into thin air!');
-  }
-  else if(command === "hug"){
-    ComfyJS.Say('/me There there, '+user+'. Everything is going to be okay. martyHeart');
-  }
-  else if(command === "religion"){
-    ComfyJS.Say('/me Can you spare a minute for our lord and savior The Wisdom Dog? https://youtu.be/D-UmfqFjpl0');
-  }else if(command === "addquote"){
-    console.log("Added a quote: "+message);
+  // if(command === "discord" ) {
+  //   ComfyJS.Say('/me We\'ve a fun Discord server where we say things and do stuff. Join us! https://discord.gg/XcNx3Aw');
+  // }
+  // else if(command == "youtube"){
+  //   ComfyJS.Say('/me Panash tries to edit and put up videos at https://www.youtube.com/channel/UCQKfmsTfUdJZW4EqfsWC2lQ?view_as=subscriber');
+  // }
+  // else if(command === "lurk"){
+  //   ComfyJS.Say('/me Poof! '+user+' has disappeared into thin air!');
+  // }
+  // else if(command === "hug"){
+  //   ComfyJS.Say('/me There there, '+user+'. Everything is going to be okay. martyHeart');
+  // }
+  // else if(command === "religion"){
+  //   ComfyJS.Say('/me Can you spare a minute for our lord and savior The Wisdom Dog? https://youtu.be/D-UmfqFjpl0');
+  // }
+  else if(command === "addquote"){
     quotes.push(message);
     SaveQuotes();
   }else if(command == "quote"){
@@ -80,7 +101,51 @@ ComfyJS.onCommand = ( user, command, message, flags, extra ) => {
     }
     else
       ComfyJS.Say("/me "+quotes[quoteNo]);
+  }else if(command === "addcommand" && user.toLowerCase() == process.env.TWITCH_TARGET_CHANNEL){
+    console.log("Adding a command");
+    AddACommand(command,message);
   }
+}
+
+function AddACommand(com, msg){
+  var toProcess = msg.split(" ");
+  var res = msg.substr(msg.indexOf(" ") + 1);;
+  var obj = {"Command":toProcess[0], "Response":res};
+  commands.push(obj);
+
+  var toWrite ="[\r\n";
+  for(var i = 0; i < commands.length-1; i++){
+    toWrite = toWrite+JSON.stringify(commands[i])+",\r\n";
+  }
+  toWrite=toWrite + JSON.stringify(commands[commands.length-1])+"\r\n]";
+
+  fs.writeFile("commands.txt", toWrite, function(err) {
+      if (err) {
+          console.log(err);
+      }else{
+        console.log("Command added: "+toProcess[0]);
+        // ComfyJS.Say("/me Quote added successfully!");
+      }
+  });
+}
+
+function RespondToCommand(com, msg, user){
+  //read commands text
+  var response = "";
+  for(var i = 0; i < commands.length; i++){
+    if(commands[i].Command == com){
+      response = commands[i].Response;
+      response = response.replace("$user", user);
+      break;
+    }
+  }
+
+  if(response != ""){
+    console.log("Responding to command "+com+" with: "+response);
+    ComfyJS.Say(response);
+    return true;
+  }
+  return false;
 }
 
 function SaveQuotes(){
