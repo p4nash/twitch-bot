@@ -24,6 +24,12 @@ For example, to add the command for your Discord server, you'd write in the foll
 
 The commands are then saved in a commands.txt file on your computer.
 
+To reference the user calling the command, use the variable `$user` in the response. For example you could have:
+`!addcommand hug $user was hugged!`
+
+The response would show up as:
+`P4NASH was hugged!`
+
 2. This bot also has a persistent quotes system. To add a quote, use the command:
 `!addquote <quote>`
 
