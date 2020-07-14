@@ -21,68 +21,15 @@ fs.readFile('commands.txt', (err, data) => {
     commands = command;
 });
 
-// const r2 = readline.createInterface({
-//     input: fs.createReadStream('commands.txt'),
-//     output: process.stdout,
-//     terminal: false
-// });
-// r2.on('line', (line) => {
-//     JSON.parse(line);
-//     console.log(line);
-// });
-// const tmi = require('tmi.js');
-// const client = new tmi.Client({
-// 	options: { debug: true },
-// 	connection: {
-// 		reconnect: true,
-// 		secure: true
-// 	},
-// 	identity: {
-// 		username: process.env.TWITCH_USERNAME,
-// 		password: process.env.TWITCH_AUTH_CLIENT
-// 	},
-// 	channels: [ 'p4nash' ]
-// });
-//
-// client.connect();
-//
-// client.on('message', (channel, tags, message, self) => {
-// 	if(self) return;
-//   console.log(tags.username,': '+ message);
-// 	if(message.toLowerCase() === '!hello') {
-// 		client.say(channel, `@${tags.username}, heya!`);
-// 	}
-// });
-//
-// client.on('join', (channel, username, self) => {
-// 	if(self) return;
-//   console.log(username +' just joined '+ channel);
-// });
-
-
 var ComfyJS = require("comfy.js");
 
 ComfyJS.onCommand = ( user, command, message, flags, extra ) => {
-  if(user.toLowerCase() == 'therealmartybot') return;
+  if(user.toLowerCase() == process.env.TWITCH_USERNAME) return;
 
   if(RespondToCommand(command, message, user)){
     console.log("Responding to basic command "+command);
   }
-  // if(command === "discord" ) {
-  //   ComfyJS.Say('/me We\'ve a fun Discord server where we say things and do stuff. Join us! https://discord.gg/XcNx3Aw');
-  // }
-  // else if(command == "youtube"){
-  //   ComfyJS.Say('/me Panash tries to edit and put up videos at https://www.youtube.com/channel/UCQKfmsTfUdJZW4EqfsWC2lQ?view_as=subscriber');
-  // }
-  // else if(command === "lurk"){
-  //   ComfyJS.Say('/me Poof! '+user+' has disappeared into thin air!');
-  // }
-  // else if(command === "hug"){
-  //   ComfyJS.Say('/me There there, '+user+'. Everything is going to be okay. martyHeart');
-  // }
-  // else if(command === "religion"){
-  //   ComfyJS.Say('/me Can you spare a minute for our lord and savior The Wisdom Dog? https://youtu.be/D-UmfqFjpl0');
-  // }
+
   else if(command === "addquote"){
     quotes.push(message);
     SaveQuotes();
@@ -124,7 +71,6 @@ function AddACommand(com, msg){
           console.log(err);
       }else{
         console.log("Command added: "+toProcess[0]);
-        // ComfyJS.Say("/me Quote added successfully!");
       }
   });
 }
