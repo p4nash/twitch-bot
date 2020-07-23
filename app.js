@@ -29,7 +29,6 @@ ComfyJS.onCommand = ( user, command, message, flags, extra ) => {
   if(RespondToCommand(command, message, user)){
     console.log("Responding to basic command "+command);
   }
-
   else if(command === "addquote"){
     quotes.push(message);
     SaveQuotes();
@@ -51,28 +50,72 @@ ComfyJS.onCommand = ( user, command, message, flags, extra ) => {
   }else if(command === "addcommand" && user.toLowerCase() == process.env.TWITCH_TARGET_CHANNEL){
     console.log("Adding a command");
     AddACommand(command,message);
+  }else if(command === "removecommand" && user.toLowerCase() == process.env.TWITCH_TARGET_CHANNEL){
+    RemoveACommand(message);
+  }
+}
+
+function RemoveACommand(com){
+  console.log("Removing command "+com);
+  var commandIndex = -1;
+  for(var i = 0; i < commands.length; i++){
+    console.log(commands[i].Command);
+    if(commands[i].Command === com){
+      console.log("Command "+com+" exists. Removing now.");
+      commandIndex = i;
+    }
+  }
+
+  if(commandIndex >= 0){
+    console.log("Command exists at "+commandIndex);
+    commands.splice(commandIndex, 1);
+    saveCommands();
+
+    ComfyJS.Say("Command "+com+" has been removed successfully.");
+  }
+  else{
+      ComfyJS.Say("Oopsie poopsie! Command "+com+" does not exist.");
   }
 }
 
 function AddACommand(com, msg){
+  var commandExists = false;
   var toProcess = msg.split(" ");
   var res = msg.substr(msg.indexOf(" ") + 1);;
   var obj = {"Command":toProcess[0], "Response":res};
-  commands.push(obj);
 
-  var toWrite ="[\r\n";
-  for(var i = 0; i < commands.length-1; i++){
-    toWrite = toWrite+JSON.stringify(commands[i])+",\r\n";
+  for(var i = 0; i < commands.length; i++){
+    if(commands[i].Command === toProcess[0]){
+      commandExists= true;
+    }
   }
-  toWrite=toWrite + JSON.stringify(commands[commands.length-1])+"\r\n]";
 
-  fs.writeFile("commands.txt", toWrite, function(err) {
-      if (err) {
-          console.log(err);
-      }else{
-        console.log("Command added: "+toProcess[0]);
-      }
-  });
+  if(commandExists === true) {
+    console.log("Oopsie poopsie! Command already exists. Cannot add.");
+    return;
+  }
+
+  commands.push(obj);
+  saveCommands();
+
+  ComfyJS.Say("Command "+com+" has been added successfully.");
+}
+
+function saveCommands(){
+    var toWrite ="[\r\n";
+    for(var i = 0; i < commands.length-1; i++){
+      toWrite = toWrite+JSON.stringify(commands[i])+",\r\n";
+    }
+    toWrite=toWrite + JSON.stringify(commands[commands.length-1])+"\r\n]";
+
+    fs.writeFile("commands.txt", toWrite, function(err) {
+        if (err) {
+            console.log(err);
+        }else{
+          console.log("Commands updated");
+          console.log(toWrite);
+        }
+    });
 }
 
 function RespondToCommand(com, msg, user){
