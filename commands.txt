@@ -3,5 +3,6 @@
 {"Command":"youtube","Response":"/me Panash tries to edit and put up videos at https://www.youtube.com/channel/UCQKfmsTfUdJZW4EqfsWC2lQ?view_as=subscriber"},
 {"Command":"lurk","Response":"/me Poof! $user has disappeared into thin air!"},
 {"Command":"hug","Response":"/me There there, $user. Everything is going to be okay. martyHeart"},
-{"Command":"religion","Response":"/me Can you spare a minute for our lord and savior The Wisdom Dog? https://youtu.be/D-UmfqFjpl0"}
+{"Command":"religion","Response":"/me Can you spare a minute for our lord and savior The Wisdom Dog? https://youtu.be/D-UmfqFjpl0"},
+{"Command":"spotify","Response":"I'm listening to some bops found here: https://open.spotify.com/user/thenash654/playlist/3X52fvQHH4yqKys65RxgbR?si=7IVVnW6-SI6M5zju0rMzTw"}
 ]
