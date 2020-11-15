@@ -30,6 +30,9 @@ To reference the user calling the command, use the variable `$user` in the respo
 The response would show up as:
 `P4NASH was hugged!`
 
+To remove a quote, use the command:
+`!removequote <quote>`
+
 2. This bot also has a persistent quotes system. To add a quote, use the command:
 `!addquote <quote>`
 
@@ -37,3 +40,4 @@ To view a quote, write either:
 `!quote` or `!quote <number>`
 
 All quotes are stored in quotes.txt. To delete a quote, you can edit that txt file for now.
+
