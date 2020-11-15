@@ -1,0 +1,110 @@
+.space{
+  position: fixed;
+  z-index: -3;
+  background: url('../images/space-01.png') no-repeat fixed center;
+  background-size: 100vw 100vh;
+  width: 100vw;
+  height: 100vh;
+  position: absolute;
+  top: 0px; left: 0;
+  overflow: hidden;
+}
+.planet, #marty{
+  position: fixed;
+}
+.planet{
+  width: 20%;
+  z-index: -2;
+}
+.spin{
+  -webkit-animation:spin 20s linear infinite;
+  -moz-animation:spin 20s linear infinite;
+  animation:spin 20s linear infinite;
+}
+@-moz-keyframes spin { 100% { -moz-transform: rotate(360deg); } }
+@-webkit-keyframes spin { 100% { -webkit-transform: rotate(360deg); } }
+@keyframes spin { 100% { -webkit-transform: rotate(360deg); transform:rotate(360deg); } }
+
+#planet1{
+  top: -7%;
+  left: -7%;
+}
+#planet2{
+  bottom: -10%;
+  right: -7%;
+}
+#marty{
+  width: 10%;
+  z-index: -1;
+}
+
+#marty{
+  width: 10%;
+  z-index: -2;
+}
+
+.float{
+  /* border: 2px solid red; */
+  -webkit-animation: goright 15s linear infinite;
+  -moz-animation: goright 15s linear infinite;
+  animation: goright 15s linear infinite;
+}
+
+@-moz-keyframes spin { 100% { -moz-transform: rotate(360deg); } }
+@-webkit-keyframes spin { 100% { -webkit-transform: rotate(360deg); } }
+@keyframes spin { 100% { -webkit-transform: rotate(360deg); transform:rotate(360deg); } }
+
+@-moz-keyframes goright {
+  0% {
+    left: 0px;
+    top: 100%;
+  }
+  50% {
+    left: 50%;
+    top: -50%;
+    -moz-transform: rotate(360deg);
+    transform:rotate(360deg);
+  }
+  100% {
+    left: 100%;
+    top: 100%;
+    -moz-transform: rotate(0deg);
+    transform:rotate(0deg);
+  }
+}
+@-webkit-keyframes goright {
+  0% {
+    left: 0px;
+    top: 100%;
+  }
+  50% {
+    left: 50%;
+    top: -50%;
+    -webkit-transform: rotate(360deg);
+    transform:rotate(360deg);
+  }
+  100% {
+    left: 100%;
+    top: 100%;
+    -webkit-transform: rotate(0deg);
+    transform:rotate(0deg);
+  }
+}
+@keyframes goright {
+  0% {
+    left: 0px;
+    top: 100%;
+  }
+  50% {
+    left: 50%;
+    top: -50%;
+    -webkit-transform: rotate(360deg);
+    transform:rotate(360deg);
+  }
+  100% {
+    left: 100%;
+    top: 100%;
+    -webkit-transform: rotate(0deg);
+    transform:rotate(0deg);
+  }
+}
