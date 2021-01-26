@@ -1,0 +1,25 @@
+{
+  "name": "marty-bot",
+  "version": "0.0.0",
+  "description": "",
+  "main": "marty.js",
+  "scripts": {
+    "start": "node ."
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nashmia-riaz/marty-bot.git"
+  },
+  "author": "Panash",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/nashmia-riaz/marty-bot/issues"
+  },
+  "homepage": "https://github.com/nashmia-riaz/marty-bot#readme",
+  "dependencies": {
+    "comfy.js": "^1.1.6",
+    "dotenv": "^8.2.0",
+    "firebase-admin": "^9.4.1",
+    "http": "0.0.1-security"
+  }
+}

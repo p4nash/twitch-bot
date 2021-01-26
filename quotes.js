@@ -12,6 +12,7 @@ function ReadQuotes(){
     if(snap.val() == null || snap.val() == undefined) return;
 
     quotes = snap.val();
+    console.log(quotes);
     return snap.val();
   });
 }
@@ -26,7 +27,7 @@ function GetQuote(index){
 }
 
 function SaveQuotes(quote, client){
-  var quoteRef=quotesDB.child(quotes.length-1);
+  var quoteRef=quotesDB.child(quotes.length);
   var obj = {"quote": quote};
   quoteRef.update(obj,(err)=>{
     if(err){
@@ -36,9 +37,10 @@ function SaveQuotes(quote, client){
     else{
       console.log("/me Added quote successfully.");
       var index = 0;
-      if(quotes == null) index = 0;
+      if(quotes.length <= 0) index = 0;
       else index = Object.keys(quotes).length;
-      quotes[index] = quote;
+      quotes[index] = {"quote":quote};
+      console.log(quotes);
       client.Say("/me Quote added successfully.");
     }
   });
