@@ -16,13 +16,13 @@ TWITCH_TARGET_CHANNEL="<username of your channel that you want to add bot to>"
 Note: You can get your Twitch auth code from this [link](https://twitchapps.com/tmi/).
 
 # Current features:
-1. The owner of the Twitch channel this bot mods can add commands using the format below:
+1. The broadcaster and mods can add commands using the format below:
 `!addcommand <commmand> <response>`
 
 For example, to add the command for your Discord server, you'd write in the following message into your own chat with the bot running:
 `!addcommand discord https://discord.gg/fHuz7c`
 
-The commands are then saved in a commands.txt file on your computer.
+The commands are then uploaded to the Firebase database linked.
 
 To reference the user calling the command, use the variable `$user` in the response. For example you could have:
 `!addcommand hug $user was hugged!`
@@ -30,14 +30,20 @@ To reference the user calling the command, use the variable `$user` in the respo
 The response would show up as:
 `P4NASH was hugged!`
 
-To remove a quote, use the command:
-`!removequote <quote>`
+Mods can remove a command as well using the format below:
+`!removecommand discord`
+
+If the corresponding command is not found, the bot will send a message accordingly.
+
 
 2. This bot also has a persistent quotes system. To add a quote, use the command:
 `!addquote <quote>`
 
 To view a quote, write either:
 `!quote` or `!quote <number>`
+
+To remove a quote, use the command (only for mods and broadcaster):
+`!removequote <quote>`
 
 All quotes are stored in quotes.txt. To delete a quote, you can edit that txt file for now.
 
