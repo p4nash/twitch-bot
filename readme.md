@@ -42,8 +42,6 @@ If the corresponding command is not found, the bot will send a message according
 To view a quote, write either:
 `!quote` or `!quote <number>`
 
-To remove a quote, use the command (only for mods and broadcaster):
-`!removequote <quote>`
 
-All quotes are stored in quotes.txt. To delete a quote, you can edit that txt file for now.
+All quotes are stored in the Firebase database. For now, you can only delete a quote via the Firebase console (for owner).
 
