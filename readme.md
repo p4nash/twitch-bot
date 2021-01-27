@@ -27,8 +27,8 @@ The commands are then uploaded to the Firebase database linked.
 ## To reference the user calling the command, use the variable `$user` in the response. For example you could have:
 `!addcommand hug $user was hugged!`
 
-The response to "!hug P4NASH" would show up as:
-`P4NASH was hugged!`
+The response to "P4NASH: !lurk" would show up as:
+`P4NASH is now lurking!`
 
 ## Mods can remove a command as well using the format below:
 `!removecommand discord`
