@@ -31,7 +31,12 @@ The response to "P4NASH: !lurk" would show up as:
 `P4NASH is now lurking!`
 
 ## Mods can remove a command as well using the format below:
-`!removecommand discord`
+`!removecommand <command>`
+
+If the corresponding command is not found, the bot will send a message accordingly.
+
+## Mods can edit a command:
+`!editcommand <command> <response>`
 
 If the corresponding command is not found, the bot will send a message accordingly.
 
