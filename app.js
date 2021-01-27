@@ -35,6 +35,8 @@ ComfyJS.onCommand = ( user, command, message, flags, extra ) => {
     commandsManager.AddCommand(message, ComfyJS);
   }else if(command === "removecommand" && (flags.mod == true || flags.broadcaster == true)){
     commandsManager.RemoveCommand(message, ComfyJS);
+  }else if(command === "editcommand" && (flags.mod == true || flags.broadcaster == true)){
+    commandsManager.EditCommand(message, ComfyJS);
   }
 }
 

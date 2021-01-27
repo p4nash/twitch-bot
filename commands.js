@@ -13,23 +13,47 @@ function ReadCommands(){
   });
 }
 
+function EditCommand(response, client){
+    var command = response.split(" ")[0];
+    var commandsRef = commandsDB.child(command);
+
+    if(commands[command] == undefined){
+      client.Say("/me Command doesn't exist.");
+      return;
+    }
+
+    var res = response.substr(response.indexOf(" ") + 1);;
+    var obj = {"Response": res};
+
+    UpdateCommand(command, commandsRef, obj, client, "/me Command edited successfully.", "/me Something went wrong. Couldn't add the command.");
+}
+
+function UpdateCommand(command, dbRef, obj, client, onSuccess, onFailure){
+    dbRef.update(obj, (err)=>{
+      if(err){
+        console.log("Something went wrong. "+err);
+        client.Say(onFailure);
+      }
+      else{
+        commands[command] = obj;
+        client.Say(onSuccess);
+      }
+    });
+}
+
 function AddCommand(response, client){
   var command = response.split(" ")[0];
   var commandsRef = commandsDB.child(command);
+
+  if(commands[command] != undefined){
+    client.Say("/me Command already exists. Use editcommand to edit the response.");
+    return;
+  }
+
   var res = response.substr(response.indexOf(" ") + 1);;
   var obj = {"Response": res};
 
-  commandsRef.update(obj, (err)=>{
-    if(err){
-      console.log("Something went wrong. "+err);
-      client.Say("/me Something went wrong. Couldn't add the command. ");
-    }
-    else{
-      console.log("Added command successfully.");
-      commands[command] = {"Response": res};
-      client.Say("/me Command added successfully.");
-    }
-  });
+  UpdateCommand(command, commandsRef, obj, client, "/me Command added successfully.", "/me Something went wrong. Couldn't add the command.");
 }
 
 function GetCommandResponse(command){
@@ -46,6 +70,7 @@ function RespondToCommand(com, msg, user, client){
     console.log("Responding to command "+com+" with: "+response);
     response = GetCommandResponse(com);
     response = response.replace("$user", user);
+    response = response.replace("$")
     client.Say("/me " + response);
     return true;
   }
@@ -56,6 +81,7 @@ function RemoveCommand(response, client){
   var commandsRef = commandsDB.child(command);
   commandsRef.remove().then(function(){
     client.Say("/me Removed command !"+command +" successfuly.");
+    commands[command] = undefined;
   })
   .catch(function(error){
     client.Say("/me Couldn't remove command. Something happened.");
@@ -63,4 +89,4 @@ function RemoveCommand(response, client){
 
 }
 
-module.exports = { AddCommand, RespondToCommand, RemoveCommand };
+module.exports = { AddCommand, EditCommand, RespondToCommand, RemoveCommand };
