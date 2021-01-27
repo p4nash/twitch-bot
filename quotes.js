@@ -23,7 +23,10 @@ function AddQuote(quote, client){
 }
 
 function GetQuote(index){
-  return quotes[index].quote;
+  if(quotes[index] != undefined)
+    return quotes[index].quote;
+
+  return "Quote not found.";
 }
 
 function SaveQuotes(quote, client){
