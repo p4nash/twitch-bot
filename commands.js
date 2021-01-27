@@ -55,7 +55,7 @@ function RemoveCommand(response, client){
   var command = response.split(" ")[0];
   var commandsRef = commandsDB.child(command);
   commandsRef.remove().then(function(){
-    client.Say("/me Removed command !"+command +"successfuly.");
+    client.Say("/me Removed command !"+command +" successfuly.");
   })
   .catch(function(error){
     client.Say("/me Couldn't remove command. Something happened.");

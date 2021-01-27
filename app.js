@@ -31,10 +31,9 @@ ComfyJS.onCommand = ( user, command, message, flags, extra ) => {
       // console.log(quotesManager.quotes);
       ComfyJS.Say("/me "+quotesManager.GetQuote(quoteNo));
     }
-  }else if(command === "addcommand" && user.toLowerCase() == process.env.TWITCH_TARGET_CHANNEL){
-    console.log("Adding a command");
+  }else if(command === "addcommand" && (flags.mod == true || flags.broadcaster == true)){
     commandsManager.AddCommand(message, ComfyJS);
-  }else if(command === "removecommand" && user.toLowerCase() == process.env.TWITCH_TARGET_CHANNEL){
+  }else if(command === "removecommand" && (flags.mod == true || flags.broadcaster == true)){
     commandsManager.RemoveCommand(message, ComfyJS);
   }
 }
