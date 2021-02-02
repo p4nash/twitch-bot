@@ -30,6 +30,14 @@ The commands are then uploaded to the Firebase database linked.
 The response to "P4NASH: !lurk" would show up as:
 `P4NASH is now lurking!`
 
+## To reference a target for a command, use the variable `$target` in the response. For example, you could have:
+`!addcommand so $target is raiding! You can check them out at their channel https://www.twitch.tv/$target`
+
+The response to the command "!so J_Writer_" would then be:
+`J_Writer is raiding! You can check them out at their channel https://wwww.twitch.tv/target`
+
+Note that the target is the second argument that we call within the final saved command.
+
 ## Mods can remove a command as well using the format below:
 `!removecommand <command>`
 
