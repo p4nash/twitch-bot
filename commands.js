@@ -64,14 +64,17 @@ function GetCommandResponse(command){
 
 function RespondToCommand(com, msg, user, client){
   //read commands text
+  console.log(msg);
   var response = "";
   if(commands[com] == null || commands[com] == undefined) return false;
   else{
     console.log("Responding to command "+com+" with: "+response);
     response = GetCommandResponse(com);
     response = response.replace("$user", user);
-    response = response.replace("$")
-    client.Say("/me " + response);
+    // newresponse = response.replaceAll("$target", msg);
+    var newResponse = response.split("$target").join(msg);
+    // response = response.replace("$");
+    client.Say("/me " + newResponse);
     return true;
   }
 }
