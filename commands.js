@@ -71,10 +71,8 @@ function RespondToCommand(com, msg, user, client){
     console.log("Responding to command "+com+" with: "+response);
     response = GetCommandResponse(com);
     response = response.replace("$user", user);
-    // newresponse = response.replaceAll("$target", msg);
-    var newResponse = response.split("$target").join(msg || user);
-    // response = response.replace("$");
-    client.Say("/me " + newResponse);
+    response = response.split("$target").join(msg || user);
+    client.Say("/me " + response);
     return true;
   }
 }
