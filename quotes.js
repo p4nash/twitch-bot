@@ -12,7 +12,6 @@ function ReadQuotes(){
     if(snap.val() == null || snap.val() == undefined) return;
 
     quotes = snap.val();
-    console.log(quotes);
     return snap.val();
   });
 }
