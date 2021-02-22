@@ -19,7 +19,8 @@
   "dependencies": {
     "comfy.js": "^1.1.6",
     "dotenv": "^8.2.0",
-    "firebase-admin": "^9.4.1",
-    "http": "0.0.1-security"
+    "firebase-admin": "^9.5.0",
+    "http": "0.0.1-security",
+    "obs-websocket-js": "^4.0.2"
   }
 }

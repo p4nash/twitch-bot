@@ -37,6 +37,13 @@ ComfyJS.onCommand = ( user, command, message, flags, extra ) => {
     commandsManager.RemoveCommand(message, ComfyJS);
   }else if(command === "editcommand" && (flags.mod == true || flags.broadcaster == true)){
     commandsManager.EditCommand(message, ComfyJS);
+  }else if (command === "nerdalert" && (flags.mod == true || flags.broadcaster == true)){
+    console.log("Nerd alert!");
+    obs.send('SetSceneItemProperties', {item: "Nerd Alert.mov", visible: true});
+
+    setTimeout(()=>{
+      obs.send('SetSceneItemProperties',  {item: "Nerd Alert.mov", visible: false});
+    }, 3000);
   }
 }
 
@@ -65,3 +72,23 @@ function RemoveACommand(com){
 
 
 ComfyJS.Init(process.env.TWITCH_TARGET_CHANNEL, process.env.TWITCH_AUTH_CLIENT);
+
+const OBSWebSocket = require('obs-websocket-js');
+const obs = new OBSWebSocket();
+var scenes; var currentScene; var sourceSettings;
+var sceneItems; var sceneItemProperties;
+obs.connect({
+        address: 'localhost:4444',
+        password: ''
+    })
+    .then(() => {
+        console.log(`Success! We're connected & authenticated.`);
+
+        return obs.send('GetSceneItemProperties', {item: "Nerd Alert.mov"});
+    })
+    .then(data => {
+        sceneItemProperties = data;
+    })
+    .catch(err => { // Promise convention dicates you have a catch on every chain.
+        console.log(err);
+    });
