@@ -12,12 +12,12 @@ ComfyJS.onCommand = ( user, command, message, flags, extra ) => {
   }
 
   if(command === "addquote"){
-    quotes = quotesManager.AddQuote(message, ComfyJS);
+    quotes = quotesManager.AddData("quotes", message, ComfyJS);
   }else if(command == "quote"){
     var quoteNo = -1;
 
     if(message === "" || message === null || message === undefined){
-      quoteNo = Math.floor(Math.random() * quotesManager.GetTotalQuotes());
+      quoteNo = Math.floor(Math.random() * quotesManager.GetTotalDataNumber("quotes"));
       console.log("Looking for quote"+quoteNo);
     }
     else{
@@ -28,10 +28,30 @@ ComfyJS.onCommand = ( user, command, message, flags, extra ) => {
       return;
     }
     else{
-      // console.log(quotesManager.quotes);
-      ComfyJS.Say("/me "+quotesManager.GetQuote(quoteNo));
+      ComfyJS.Say("/me "+quotesManager.GetData("quotes", quoteNo));
     }
-  }else if(command === "addcommand" && (flags.mod == true || flags.broadcaster == true)){
+  }
+  if(command === "addjoke"){
+    jokes = quotesManager.AddData("jokes", message, ComfyJS);
+  }else if(command == "bread"){
+    var jokeNo = -1;
+
+    if(message === "" || message === null || message === undefined){
+      jokeNo = Math.floor(Math.random() * quotesManager.GetTotalDataNumber("jokes"));
+      console.log("Looking for joke"+jokeNo);
+    }
+    else{
+      jokeNo = parseInt(message);
+    }
+    if(jokeNo == null || jokeNo == undefined || Number.isNaN(jokeNo) || jokeNo == -1) {
+      ComfyJS.Say("/me joke not found.");
+      return;
+    }
+    else{
+      ComfyJS.Say("/me "+quotesManager.GetData("jokes", jokeNo));
+    }
+  }
+  else if(command === "addcommand" && (flags.mod == true || flags.broadcaster == true)){
     commandsManager.AddCommand(message, ComfyJS);
   }else if(command === "removecommand" && (flags.mod == true || flags.broadcaster == true)){
     commandsManager.RemoveCommand(message, ComfyJS);
