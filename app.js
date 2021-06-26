@@ -1,8 +1,20 @@
 require('dotenv').config();
+const request = require('request');
+const express = require('express');
+const bodyParser = require('body-parser');
+const router = express.Router();
+var cors = require('cors');
+var querystring = require('querystring');
+var cookieParser = require('cookie-parser');
+
 var quotesManager = require('./quotes.js');
 var commandsManager = require('./commands.js');
 var commands = [];
 var ComfyJS = require("comfy.js");
+
+var auth_token = '';
+
+var app = express();
 
 ComfyJS.onCommand = ( user, command, message, flags, extra ) => {
   if(user.toLowerCase() == process.env.TWITCH_USERNAME) return;
@@ -62,59 +74,8 @@ function RemoveACommand(com){
   }
 }
 
-// ComfyJS.Init(process.env.TWITCH_TARGET_CHANNEL, process.env.TWITCH_AUTH_CLIENT);
+app.listen(process.env.PORT || 8888, ()=>{
+  console.log("Server started on port 8888");
 
-const request = require('request');
-
-const getToken = (url, callback)=>{
-  const options={
-    url: process.env.GET_TOKEN_URL,
-    json: true,
-    body: {
-      client_id: process.env.CLIENT_ID,
-      client_secret: process.env.CLIENT_SECRET,
-      grant_type: 'client_credentials'
-    }
-  };
-
-  request.post(options, (err, res, body)=>{
-    if(err){
-      return console.log("Error: "+err);
-    }
-
-    callback(res);
-  });
-};
-
-var AT ='';
-getToken(process.env.GET_TOKEN_URL, (res)=>{
-  AT = res.body.access_token;
-  console.log(AT);
-  getSub(process.env.GET_SUBSCRIPTION_URL, AT, (response)=>{});
+  ComfyJS.Init(process.env.TWITCH_TARGET_CHANNEL, process.env.TWITCH_AUTH_CLIENT);
 });
-
-const getSub = (url, accessToken, callback)=>{
-  const options = {
-    url: process.env.GET_SUBSCRIPTION_URL,
-    method: 'POST',
-    headers: {
-      'Client-ID': process.env.CLIENT_ID,
-      'Authorization': 'Bearer '+accessToken
-    },
-    body: {
-      type: "channel.follow",
-      version: "1",
-      condition: {
-        broadcaster_user_id: ""
-      }
-    }
-  };
-
-  request.post(options, (err, res, body)=>{
-    if(err){
-      return console.log("Error: "+err);
-    }
-
-    console.log(res.body);
-  });
-};
