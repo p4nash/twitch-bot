@@ -3,6 +3,8 @@ const request = require('request');
 const express = require('express');
 const bodyParser = require('body-parser');
 const router = express.Router();
+const http = require('http');
+
 var cors = require('cors');
 var querystring = require('querystring');
 var cookieParser = require('cookie-parser');
@@ -13,6 +15,9 @@ var commands = [];
 var ComfyJS = require("comfy.js");
 
 var app = express();
+const server = http.createServer(app);
+const {Server} = require("socket.io");
+const io = new Server(server);
 
 app
 .use(express.static(__dirname + '/public'))
@@ -22,7 +27,12 @@ app
 .use(bodyParser.urlencoded({  extended:true }));
 
 ComfyJS.onCommand = ( user, command, message, flags, extra ) => {
-  if(user.toLowerCase() == process.env.TWITCH_USERNAME) return;
+  // if(user.toLowerCase() == process.env.TWITCH_USERNAME) return;
+
+  if(command === 'ban'){
+    ComfyJS.Say('/ban '+message);
+    ComfyJS.Say('/me Banning '+message);
+  }
 
   if(commandsManager.RespondToCommand(command, message, user, ComfyJS)){
     return;
@@ -75,13 +85,158 @@ function RemoveACommand(com){
     ComfyJS.Say("Command "+com+" has been removed successfully.");
   }
   else{
-      ComfyJS.Say("Oopsie poopsie! Command "+com+" does not exist.");
+    ComfyJS.Say("Oopsie poopsie! Command "+com+" does not exist.");
   }
 }
 
-var auth_token, client_token = '';
-app.listen(process.env.PORT || 8888, ()=>{
-  console.log("Server started on port 8888");
+var auth_token = '';
+
+server.listen(8888, () => {
+  console.log('listening on *:8888');
+});
+
+io.on('connection', (socket) => {
+  console.log('a user connected');
+
+  socket.on('auth_token', (msg)=>{
+    console.log('Auth token ' + msg);
+
+    if(auth_token != '')
+      return;
+    else
+      auth_token = msg;
+
+    ComfyJS.Init(process.env.TWITCH_TARGET_CHANNEL, msg);
+  });
+
+  ComfyJS.onChat = ( user, command, message, flags, extra ) => {
+    console.log( user + " send a message.");
+    console.log(user);
+    socket.emit('chat',{
+      user: user,
+      command: command,
+      message: message,
+      flags: flags,
+      extra: extra
+    });
+  };
+
+  ComfyJS.onJoin=(user, self, extra) => {
+    console.log( user + " joined chat.");
+    socket.emit("join", {
+      user: user,
+      self: self,
+      extra:extra
+    });
+  }
+
+  ComfyJS.onPart=(user, self, extra) => {
+    console.log( user + " left chat.");
+    socket.emit("part", {
+      user: user,
+      self: self,
+      extra:extra
+    });
+  }
+
+  ComfyJS.onReward = ( user, reward, cost, message, extra ) => {
+    console.log( user + " redeemed " + reward + " for " + cost );
+    socket.emit("reward", {
+      user: user,
+      reward: reward,
+      cost: cost,
+      message: message,
+      extra: extra
+    });
+  }
+
+  ComfyJS.onHosted=(user, viewers, autohost, extra) => {
+    console.log( user + " hosted with " + viewers + " viewers.");
+    socket.emit("host", {
+      user: user,
+      viewers: viewers,
+      autohost: autohost,
+      extra: extra
+    });
+  }
+
+  ComfyJS.onRaid=(user, viewers, extra) => {
+    console.log( user + " raided with " + viewers + " viewers.");
+    socket.emit("raid", {
+      user: user,
+      viewers: viewers,
+      extra: extra
+    });
+  }
+
+  ComfyJS.onCheer=(user, message, bits, flags, extra) => {
+    console.log( user + " cheered for " + bits + " bits.");
+    socket.emit("cheer", {
+      user: user,
+      message: message,
+      bits: bits,
+      flags: flags,
+      extra:extra
+    });
+  }
+
+  ComfyJS.onSub=(user, message, subTierInfo, extra) => {
+    console.log( user + " subbed with " + subTierInfo.planName + " tier.");
+    socket.emit("sub", {
+      user: user,
+      message: message,
+      subTierInfo: subTierInfo,
+      extra:extra
+    });
+  }
+
+  ComfyJS.onResub=(user, message, streamMonths, cumulativeMonths, subTierInfo, extra) => {
+    console.log( user + " resubbed for " + streamMonths + " months.");
+    socket.emit("resub", {
+      user: user,
+      message: message,
+      streamMonths: streamMonths,
+      cumulativeMonths: cumulativeMonths,
+      subTierInfo: subTierInfo,
+      extra:extra
+    });
+  }
+
+  ComfyJS.onSubGift=( gifterUser, streakMonths, recipientUser, senderCount, subTierInfo, extra ) => {
+    console.log( gifterUser + " gifted sub to " + recipientUser + " months.");
+    socket.emit("subgift", {
+      user: user,
+      message: message,
+      streamMonths: streamMonths,
+      cumulativeMonths: cumulativeMonths,
+      subTierInfo: subTierInfo,
+      extra:extra
+    });
+  }
+
+  ComfyJS.onGiftSubContinue=(user, sender, extra) => {
+    console.log( user + " is continuing sub gifted by " + sender + ".");
+    socket.emit("giftsubcontinue", {
+      user: user,
+      sender: sender,
+      extra:extra
+    });
+  }
+
+  ComfyJS.onSubMysteryGift=( gifterUser, numbOfSubs, senderCount, subTierInfo, extra ) => {
+    console.log( gifterUser + " was gifted a sub by anonymous.");
+    socket.emit("submysterygift", {
+      gifterUser: gifterUser,
+      numbOfSubs: numbOfSubs,
+      senderCount: senderCount,
+      subTierInfo: subTierInfo,
+      extra:extra
+    });
+  }
+
+  socket.on('disconnect', () => {
+    console.log('user disconnected');
+  });
 });
 
 app.get('/', function(req, res){
@@ -95,155 +250,19 @@ app.get('/login', function(req, res){
        client_id: process.env.CLIENT_ID,
        redirect_uri: 'http://localhost:8888/feed.html',
        response_type: 'token',
-       scope: 'channel:manage:redemptions channel:read:redemptions user:read:email chat:edit chat:read',
+       scope: 'channel:manage:redemptions channel:read:redemptions channel:moderate user:read:email chat:edit chat:read',
        force_verify: true
      });
 
      res.redirect(options);
 });
 
+app.get('/ban', function(req, res){
+  console.log("Ban user "+req.query.user);
+  ComfyJS.Say("/ban "+req.query.user);
+});
+
 app.get('/feed', function(req, res){
   client_token = req.query.access_token;
   console.log("Logging in user using token "+client_token);
-  ComfyJS.Init(process.env.TWITCH_TARGET_CHANNEL, client_token);
-
-
-  res.setHeader('Content-Type', 'application/json');
-
-  ComfyJS.onChat = ( user, command, message, flags, extra ) => {
-    console.log( user + " send a message.");
-    res.write(JSON.stringify({
-      type: "chat",
-      user: user,
-      command: command,
-      message: message,
-      flags: flags,
-      extra: extra
-    }));
-  }
-
-  // ComfyJS.onReward = ( user, reward, cost, message, extra ) => {
-  //   console.log( user + " redeemed " + reward + " for " + cost );
-  //   res.send({
-  //     type: "reward",
-  //     user: user,
-  //     reward: reward,
-  //     cost: cost,
-  //     message: message,
-  //     extra: extra
-  //   });
-  // }
-  //
-  // ComfyJS.onHosted=(user, viewers, autohost, extra) => {
-  //   console.log( user + " hosted with " + viewers + " viewers.");
-  //   res.send({
-  //     type: "host",
-  //     user: user,
-  //     viewers: viewers,
-  //     autohost: autohost,
-  //     extra: extra
-  //   });
-  // }
-  //
-  // ComfyJS.onRaid=(user, viewers, extra) => {
-  //   console.log( user + " raided with " + viewers + " viewers.");
-  //   res.send({
-  //     type: "raid",
-  //     user: user,
-  //     viewers: viewers,
-  //     extra: extra
-  //   });
-  // }
-  //
-  // ComfyJS.onCheer=(user, message, bits, flags, extra) => {
-  //   console.log( user + " cheered for " + bits + " bits.");
-  //   res.send({
-  //     type: "cheer",
-  //     user: user,
-  //     message: message,
-  //     bits: bits,
-  //     flags: flags,
-  //     extra:extra
-  //   });
-  // }
-  //
-  // ComfyJS.onSub=(user, message, subTierInfo, extra) => {
-  //   console.log( user + " subbed with " + subTierInfo.planName + " tier.");
-  //   res.send({
-  //     type: "sub",
-  //     user: user,
-  //     message: message,
-  //     subTierInfo: subTierInfo,
-  //     extra:extra
-  //   });
-  // }
-  //
-  // ComfyJS.onResub=(user, message, streamMonths, cumulativeMonths, subTierInfo, extra) => {
-  //   console.log( user + " resubbed for " + streamMonths + " months.");
-  //   res.send({
-  //     type: "resub",
-  //     user: user,
-  //     message: message,
-  //     streamMonths: streamMonths,
-  //     cumulativeMonths: cumulativeMonths,
-  //     subTierInfo: subTierInfo,
-  //     extra:extra
-  //   });
-  // }
-  //
-  // ComfyJS.onSubGift=( gifterUser, streakMonths, recipientUser, senderCount, subTierInfo, extra ) => {
-  //   console.log( gifterUser + " gifted sub to " + recipientUser + " months.");
-  //   res.send({
-  //     type: "subgift",
-  //     user: user,
-  //     message: message,
-  //     streamMonths: streamMonths,
-  //     cumulativeMonths: cumulativeMonths,
-  //     subTierInfo: subTierInfo,
-  //     extra:extra
-  //   });
-  // }
-  //
-  // ComfyJS.onGiftSubContinue=(user, sender, extra) => {
-  //   console.log( user + " is continuing sub gifted by " + sender + ".");
-  //   res.send({
-  //     type: "giftsubcontinue",
-  //     user: user,
-  //     sender: sender,
-  //     extra:extra
-  //   });
-  // }
-  //
-  // ComfyJS.onSubMysteryGift=( gifterUser, numbOfSubs, senderCount, subTierInfo, extra ) => {
-  //   console.log( gifterUser + " was gifted a sub by anonymous.");
-  //   res.send({
-  //     type: "submysterygift",
-  //     gifterUser: gifterUser,
-  //     numbOfSubs: numbOfSubs,
-  //     senderCount: senderCount,
-  //     subTierInfo: subTierInfo,
-  //     extra:extra
-  //   });
-  // }
-
-  ComfyJS.onJoin=(user, self, extra) => {
-    console.log( user + " joined chat.");
-    res.write(JSON.stringify({
-      type: "join",
-      user: user,
-      self: self,
-      extra:extra
-    }));
-  }
-
-  ComfyJS.onPart=(user, self, extra) => {
-    console.log( user + " left chat.");
-    res.write(JSON.stringify({
-      type: "part",
-      user: user,
-      self: self,
-      extra:extra
-    }));
-  }
-
 });

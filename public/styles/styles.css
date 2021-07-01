@@ -7,7 +7,7 @@ html{
 body{
   width: 100vw;
   height: 100vh;
-  
+
   padding-top: 30px;
   background-color: rgba(40, 10, 60, 1);
   color: white;
@@ -59,6 +59,9 @@ h1, h3{
   color: #ff0055;
   font-size: 18px;
 }
+.event>.container>.row{
+  width: 100%;
+}
 #messagesContainer, #eventsContainer{
 }
 .container{
@@ -67,7 +70,7 @@ h1, h3{
   /* padding: 0; */
 }
 
-.row{
+.page.row{
   padding: 2%;
   width: 100vw;
   max-height: 90vh;
@@ -75,9 +78,10 @@ h1, h3{
 
 .message, .event{
   backdrop-filter: blur(5px);
-  padding: 20px;
   margin-bottom: 20px;
   border-radius: 10px;
+  padding: 20px;
+  box-shadow: 0px 0px 20px rgba(40, 10, 60, 0.75);
 }
 .event{
   /* background-color: rgba(40, 10, 60, 0.9); */
@@ -86,7 +90,6 @@ h1, h3{
   font-weight: 400;
   color: white;
   backdrop-filter: blur(20px);
-  box-shadow: 0px 0px 20px rgba(40, 10, 60, 0.75);
 }
 
 .user{
@@ -108,7 +111,7 @@ h1, h3{
   font-weight: 400;
   color: white;
 }
-/*
+
 .buttons{
   position: absolute;
   right: 20px;
@@ -122,11 +125,28 @@ h1, h3{
 .buttons>img:hover{
     transform: scale(1.25);
     cursor: pointer;
-} */
-
-.event>img, #viewerCount>img{
+}
+.messageEvent{
+  display: block;
+  font-style: italic;
+  color: rgba(255, 255, 255, 0.75);
+  padding: 20px;
+  border-radius: 10px;
+  background-color: rgba(0, 0, 0, 0.25);
+  margin-top: 10px;
+}
+.eventContent{
+  font-size: 1em;
+}
+.eventImg, #viewerCount>img{
   margin-right: 20px;
-  width: 20px;
+  height: 1.2em;
+  vertical-align: text-top;
+}
+p{
+  width: 80%;
+  margin-right: 0;
+  border: 2px solid red;
 }
 .bold{
   font-weight: 900;

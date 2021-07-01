@@ -4,6 +4,7 @@ var chatterCounterOn = false;
 var chatterEventOn = false;
 var scrollEvents = scrollMessages = true;
 var isAutoScrollEvent = false;
+var socket;
 
 $(function(){
 
@@ -14,75 +15,112 @@ $(function(){
   var access_token = params.access_token;
   console.log(access_token);
 
-  $.ajax({
-          url: 'http://localhost:8888/feed?access_token='+access_token,
-          success: function(response) {
-            console.log(response);
-            switch(response.type){
-              case "chat":
-              AddMessage(response.user, response.command, response.extra);
-              break;
+  socket.emit('auth_token', access_token);
 
-              case "join":
-              if(!chatterEventOn) return;
+  socket.on('chat', function(response){
+    if(response.extra.customRewardId != null) return;
+    AddMessage(response.user, response.command, response.extra);
+  });
 
-              AddEvent('https://img.icons8.com/material/24/42ff87/chat--v1.png',
-              "<span class='userEvent'>"+response.user+'</span> just joined.');
+  // socket.on('join', function(response){
+  //   if(!chatterEventOn) return;
+  //
+  //   AddEvent('https://img.icons8.com/material/24/42ff87/chat--v1.png',
+  //   "<span class='userEvent'>"+response.user+'</span> just joined.');
+  //
+  //   if(!usersInChat.find(findUsername, response.user)){
+  //     usersInChat.push(response.user);
+  //     $('#viewerCount').html('<img src="https://img.icons8.com/ios-glyphs/30/ffffff/visible.png"/>'+usersInChat.length);
+  //   }
+  // });
+  //
+  // socket.on('part', function(response){
+  //   if(!chatterEventOn) return;
+  //
+  //   AddEvent('https://img.icons8.com/material/24/42ff87/chat--v1.png',
+  //   "<span class='userEvent'>"+response.user+'</span> just joined.');
+  //
+  //   if(!usersInChat.find(findUsername, response.user)){
+  //     usersInChat.push(response.user);
+  //     $('#viewerCount').html('<img src="https://img.icons8.com/ios-glyphs/30/ffffff/visible.png"/>'+usersInChat.length);
+  //   }
+  // });
 
-              if(!usersInChat.find(findUsername, response.user)){
-                usersInChat.push(response.user);
-                $('#viewerCount').html('<img src="https://img.icons8.com/ios-glyphs/30/ffffff/visible.png"/>'+usersInChat.length);
-              }
-              break;
+  socket.on('reward', function(response){
+    if(response.message != null)
+      message ="<span class='messageEvent'>"+response.message+"</span>";
+    else
+      message = '';
 
-              case "part":
-              if(!chatterEventOn) return;
+    AddEvent('https://img.icons8.com/ios-glyphs/30/42ff87/sport-badge.png',
+               "<span class='userEvent'>"+response.user+'</span> claimed the reward '+response.reward+
+               message);
+  });
 
-              AddEvent('https://img.icons8.com/material/24/ff6ba1/chat--v1.png',
-              "<span class='userEvent'>"+response.user+'</span> just left.');
+  socket.on('host', function(response){
+    AddEvent('https://img.icons8.com/android/24/ff6ba1/retro-tv.png',
+      "<span class='userEvent'>"+response.user+'</span> hosted with '+response.viewers+' viewers.');
+  });
 
-              if(usersInChat.find(findUsername, response.user))
-              {
-                var index = usersInChat.indexOf(response.user);
-                if(index > -1){
-                  usersInChat.splice(index, 1);
-                  $('#viewerCount').html('<img src="https://img.icons8.com/ios-glyphs/30/ffffff/visible.png"/>'+usersInChat.length);
-                }
-              }
-              break;
+  socket.on('raid', function(response){
+    AddEvent('https://img.icons8.com/ios-glyphs/30/ff6ba1/baby-footprints-path.png',
+    "<span class='userEvent'>"+response.user+'</span> raided with '+response.viewers+' viewers.');
+  });
 
-              case "reward":
-              AddEvent('https://img.icons8.com/material/24/ff6ba1/sport-badge.png',
-              "<span class='userEvent'>"+response.user+'</span> claimed the reward '+response.reward+
-              "<span class='messageEvent'>"+response.message+"</span>");
-              break;
+  socket.on('cheer', function(response){
+    if(response.message != null)
+      message ="<span class='messageEvent'>"+response.message+"</span>";
+    else
+      message = '';
 
-              case "host":
-              break;
+    AddEvent('https://img.icons8.com/ios-filled/50/42ff87/diamond--v1.png',
+               "<span class='userEvent'>"+response.user+'</span> cheered '+response.bits+' bits.'+
+               message);
+  });
 
-              case "raid":
-              break;
+  socket.on('sub', function(response){
+    if(response.message != null)
+      message ="<span class='messageEvent'>"+response.message+"</span>";
+    else
+      message = '';
 
-              case "cheer":
-              break;
+    AddEvent('https://img.icons8.com/material-sharp/24/42ff87/star.png',
+      "<span class='userEvent'>"+response.user+'</span> subbed with '+response.subTierInfo.planName+' sub.'+
+      message);
+  });
 
-              case "sub":
-              break;
+  socket.on('resub', function(response){
+    if(response.message != null)
+      message ="<span class='messageEvent'>"+response.message+"</span>";
+    else
+      message = '';
 
-              case "resub":
-              break;
+    AddEvent('https://img.icons8.com/material-sharp/24/42ff87/star.png',
+      "<span class='userEvent'>"+response.user+'</span> subbed with '+response.subTierInfo.planName+' sub. They\'ve been subbed for  <span class="bold">'+response.cumulativeMonths+' months</span>.'+
+      message);
+  });
 
-              case "subgift":
-              break;
+  socket.on('subgift', function(response){
+    if(response.message != null)
+      message ="<span class='messageEvent'>"+response.message+"</span>";
+    else
+      message = '';
 
-              case "giftsubcontinue":
-              break;
+    AddEvent('https://img.icons8.com/metro/26/42ff87/gift.png',
+      "<span class='userEvent'>"+gifterUser+'</span> gifted a '+subTierInfo.planName+' sub to '+recipientUser+'. They\'ve gifted '+senderCount+' subs so far!'+
+      message);
+  });
 
-              case "submysterygift":
-              break;
-            }
-          }
-        });
+  socket.on('giftsubcontinue', function(response){
+    AddEvent('https://img.icons8.com/metro/26/ffd000/gift.png',
+      "<span class='userEvent'>"+response.sender+'</span> continued '+response.user+'\'s sub for them!');
+  });
+
+  socket.on('submysterygift', function(response){
+    AddEvent('https://img.icons8.com/pastel-glyph/64/42ff87/christmas-gift--v2.png',
+      "<span class='userEvent'>"+response.gifterUser+'</span> gifted '+response.numbOfSubs+' '+response.subTierInfo.planName+' subs to the channel! They\'ve gifted '+response.senderCount+' to the channel.');
+  });
+
 });
 
 function getHashParams() {
@@ -96,8 +134,10 @@ function getHashParams() {
 }
 
 function AddEvent(image, content){
-  var userElement = "<div class='event'><img src='"+image+"'/>"+
-  content+"</div>";
+  var userElement = "<div class='event'><div class='container'><div class='row'>"+
+  "<div class='col-1'><img class='eventImg' src='"+image+"'/></div>"+
+  "<div class='eventContent col-11'>"+content+"</div>"+
+  "</div></div></div>";
 
   $('#eventsList').append(userElement);
 
@@ -120,9 +160,9 @@ function AddMessage(user, message, extra){
   var messageElement = "<div class='message "+messageType+"'>"+
     "<span class='userName bold' style='color:"+extra.userColor+";'>"+user+"</span>"+
     "<div class='buttons'>"+
-      '<img class="delete" src="https://img.icons8.com/material-outlined/24/fc2853/delete-forever.png"/>'+
-      '<img class="timeout" src="https://img.icons8.com/material-outlined/24/fc2853/clock.png"/>'+
-      '<img class="ban" src="https://img.icons8.com/material-outlined/24/fc2853/cancel-2.png"/>'+
+      //'<img class="delete" src="https://img.icons8.com/material-outlined/24/fc2853/delete-forever.png"/>'+
+      //'<img class="timeout" onclick="timeout(\''+user+'\')" src="https://img.icons8.com/material-outlined/24/fc2853/clock.png"/>'+
+      //'<img class="ban" onclick="ban(\''+user+'\')" src="https://img.icons8.com/material-outlined/24/fc2853/cancel-2.png"/>'+
     "</div>"+
     "<span class='messageContent'>"+finalMsg+"</span>"
   +"</div>";
@@ -131,6 +171,20 @@ function AddMessage(user, message, extra){
 
   if(scrollMessages)
     $('#messagesList').animate({scrollTop: $('#messagesList')[0].scrollHeight}, 500);
+}
+
+function ban(user){
+  console.log("Ban user "+user);
+  $.ajax({
+      url: 'http://localhost:8888/ban?user='+user,
+      success: function(response) {
+        console.log(response);
+      }
+    });
+}
+
+function timeout(user){
+  console.log("Timeout user "+user);
 }
 
 function isAddressedToSomeoneElse(content){
@@ -184,6 +238,7 @@ function settings(){
 }
 
 function initialize(){channelNameString=localStorage.getItem("twitch");
+  socket = io();
 
   chatterCounterOn = localStorage.getItem("chatterCounterOn");
 
