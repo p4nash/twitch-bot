@@ -9,6 +9,7 @@ function ReadCommands(){
   commandsDB.once('value',function(snap){
     if(snap.val() == null || snap.val() == undefined) return;
     commands = snap.val();
+    console.log("Read commands successfully.");
     return snap.val();
   });
 }

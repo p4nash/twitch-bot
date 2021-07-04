@@ -90,7 +90,6 @@ function RemoveACommand(com){
   }
 }
 
-
 ComfyJS.Init(process.env.TWITCH_TARGET_CHANNEL, process.env.TWITCH_AUTH_CLIENT);
 
 const OBSWebSocket = require('obs-websocket-js');
