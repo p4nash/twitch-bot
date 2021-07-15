@@ -250,8 +250,7 @@ app.get('/login', function(req, res){
        client_id: process.env.CLIENT_ID,
        redirect_uri: 'http://localhost:8888/feed.html',
        response_type: 'token',
-       scope: 'channel:manage:redemptions channel:read:redemptions channel:moderate user:read:email chat:edit chat:read',
-       force_verify: true
+       scope: 'channel:manage:redemptions channel:read:redemptions channel:moderate user:read:email chat:edit chat:read'
      });
 
      res.redirect(options);

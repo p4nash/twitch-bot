@@ -10,6 +10,15 @@ $(function(){
 function login(){
   var channel = $('#twitchChannelName').val();
 
-  localStorage.setItem("twitch", channel);
-  window.location.href = "feed.html";
+  window.location.href = "/login";
+  // $.ajax({
+  //   url: "http://localhost:8888/login",
+  //   success: function(response) {
+  //     console.log(response);
+  //
+  //     if(response.status === 200){
+  //       window.location.href = "feed.html";
+  //     }
+  //   }
+  // });
 }
