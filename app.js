@@ -306,14 +306,17 @@ const OBSWebSocket = require('obs-websocket-js');
 const obs = new OBSWebSocket();
 var scenes; var currentScene; var sourceSettings;
 var sceneItems; var sceneItemProperties;
-var x = obs.connect({
+obs.connect({
         address: 'localhost:4444',
         password: ''
     })
-    .then(data => {
+    .then(() => {
         console.log(`Success! We're connected & authenticated.`);
-        sceneItemProperties = data;
+
         return obs.send('GetSceneItemProperties', {item: "Nerd Alert.mov"});
+    })
+    .then(data => {
+        sceneItemProperties = data;
     })
     .catch(err => { // Promise convention dicates you have a catch on every chain.
         console.log(err);
