@@ -11,6 +11,7 @@ var cookieParser = require('cookie-parser');
 
 var quotesManager = require('./quotes.js');
 var commandsManager = require('./commands.js');
+var queueManager = require('./queue.js');
 var commands = [];
 var ComfyJS = require("comfy.js");
 
@@ -39,23 +40,42 @@ ComfyJS.onCommand = ( user, command, message, flags, extra ) => {
   }
 
   if(command === "addquote"){
-    quotes = quotesManager.AddQuote(message, ComfyJS);
-  }else if(command == "quote"){
-    var quoteNo = -1;
+  quotes = quotesManager.AddData("quotes", message, ComfyJS);
+}else if(command == "quote"){
+  var quoteNo = -1;
+
+  if(message === "" || message === null || message === undefined){
+    quoteNo = Math.floor(Math.random() * quotesManager.GetTotalDataNumber("quotes"));
+    console.log("Looking for quote"+quoteNo);
+  }
+  else{
+    quoteNo = parseInt(message);
+  }
+  if(quoteNo == null || quoteNo == undefined || Number.isNaN(quoteNo) || quoteNo == -1) {
+    ComfyJS.Say("/me Quote not found.");
+    return;
+  }
+  else{
+    ComfyJS.Say("/me "+quotesManager.GetData("quotes", quoteNo));
+  }
+}if(command === "addjoke"){
+    jokes = quotesManager.AddData("jokes", message, ComfyJS);
+  }else if(command == "bread"){
+    var jokeNo = -1;
 
     if(message === "" || message === null || message === undefined){
-      quoteNo = Math.floor(Math.random() * quotesManager.GetTotalQuotes());
-      console.log("Looking for quote"+quoteNo);
+      jokeNo = Math.floor(Math.random() * quotesManager.GetTotalDataNumber("jokes"));
+      console.log("Looking for joke"+jokeNo);
     }
     else{
-      quoteNo = parseInt(message);
+      jokeNo = parseInt(message);
     }
-    if(quoteNo == null || quoteNo == undefined || Number.isNaN(quoteNo) || quoteNo == -1) {
-      ComfyJS.Say("/me Quote not found.");
+    if(jokeNo == null || jokeNo == undefined || Number.isNaN(jokeNo) || jokeNo == -1) {
+      ComfyJS.Say("/me joke not found.");
       return;
     }
     else{
-      ComfyJS.Say("/me "+quotesManager.GetQuote(quoteNo));
+      ComfyJS.Say("/me "+quotesManager.GetData("jokes", jokeNo));
     }
   }else if(command === "addcommand" && (flags.mod == true || flags.broadcaster == true)){
     commandsManager.AddCommand(message, ComfyJS);
@@ -63,6 +83,21 @@ ComfyJS.onCommand = ( user, command, message, flags, extra ) => {
     commandsManager.RemoveCommand(message, ComfyJS);
   }else if(command === "editcommand" && (flags.mod == true || flags.broadcaster == true)){
     commandsManager.EditCommand(message, ComfyJS);
+  }else if (command === "nerdalert" && (flags.mod == true || flags.broadcaster == true)){
+    console.log("Nerd alert!");
+    obs.send('SetSceneItemProperties', {item: "Nerd Alert.mov", visible: true});
+
+    setTimeout(()=>{
+      obs.send('SetSceneItemProperties',  {item: "Nerd Alert.mov", visible: false});
+    }, 3000);
+  }else if(command === 'join'){
+    queueManager.Join(ComfyJS, user);
+  }else if(command === 'leave'){
+    queueManager.Leave(ComfyJS, user);
+  }else if(command === 'clear'){
+    queueManager.Clear(ComfyJS);
+  }else if(command === 'queue'){
+    queueManager.Queue(ComfyJS);
   }
 }
 
@@ -205,10 +240,10 @@ io.on('connection', (socket) => {
   ComfyJS.onSubGift=( gifterUser, streakMonths, recipientUser, senderCount, subTierInfo, extra ) => {
     console.log( gifterUser + " gifted sub to " + recipientUser + " months.");
     socket.emit("subgift", {
-      user: user,
-      message: message,
-      streamMonths: streamMonths,
-      cumulativeMonths: cumulativeMonths,
+      gifterUser: gifterUser,
+      streakMonths: streakMonths,
+      recipientUser: recipientUser,
+      senderCount: senderCount,
       subTierInfo: subTierInfo,
       extra:extra
     });
@@ -265,3 +300,21 @@ app.get('/feed', function(req, res){
   client_token = req.query.access_token;
   console.log("Logging in user using token "+client_token);
 });
+
+
+const OBSWebSocket = require('obs-websocket-js');
+const obs = new OBSWebSocket();
+var scenes; var currentScene; var sourceSettings;
+var sceneItems; var sceneItemProperties;
+var x = obs.connect({
+        address: 'localhost:4444',
+        password: ''
+    })
+    .then(data => {
+        console.log(`Success! We're connected & authenticated.`);
+        sceneItemProperties = data;
+        return obs.send('GetSceneItemProperties', {item: "Nerd Alert.mov"});
+    })
+    .catch(err => { // Promise convention dicates you have a catch on every chain.
+        console.log(err);
+    });

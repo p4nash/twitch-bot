@@ -53,6 +53,8 @@ function AddCommand(response, client){
   var res = response.substr(response.indexOf(" ") + 1);;
   var obj = {"Response": res};
 
+  // commands.push(obj);
+
   UpdateCommand(command, commandsRef, obj, client, "/me Command added successfully.", "/me Something went wrong. Couldn't add the command.");
 }
 
