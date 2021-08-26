@@ -30,10 +30,10 @@ app
 ComfyJS.onCommand = ( user, command, message, flags, extra ) => {
   // if(user.toLowerCase() == process.env.TWITCH_USERNAME) return;
 
-  if(command === 'ban'){
-    ComfyJS.Say('/ban '+message);
-    ComfyJS.Say('/me Banning '+message);
-  }
+  // if(command === 'ban'){
+  //   ComfyJS.Say('/ban '+message);
+  //   ComfyJS.Say('/me Banning '+message);
+  // }
 
   if(commandsManager.RespondToCommand(command, message, user, ComfyJS)){
     return;
@@ -90,11 +90,25 @@ ComfyJS.onCommand = ( user, command, message, flags, extra ) => {
     setTimeout(()=>{
       obs.send('SetSceneItemProperties',  {item: "Nerd Alert.mov", visible: false});
     }, 3000);
+  }else if(command === "bigbrain" && (flags.mod == true || flags.broadcaster == true)){
+    console.log("Big Brain!");
+    obs.send('SetSceneItemProperties', {item: "BigBrain", visible: true});
+
+    setTimeout(()=>{
+      obs.send('SetSceneItemProperties',  {item: "BigBrain", visible: false});
+    }, 10000);
+  }else if(command === "fact" && (flags.mod == true || flags.broadcaster == true)){
+    console.log("The more you know");
+    obs.send('SetSceneItemProperties', {item: "The More You Know.mov", visible: true});
+
+    setTimeout(()=>{
+      obs.send('SetSceneItemProperties',  {item: "The More You Know.mov", visible: false});
+    }, 10000);
   }else if(command === 'join'){
     queueManager.Join(ComfyJS, user);
   }else if(command === 'leave'){
     queueManager.Leave(ComfyJS, user);
-  }else if(command === 'clear'){
+  }else if(command === 'clear' && (flags.mod == true || flags.broadcaster == true)){
     queueManager.Clear(ComfyJS);
   }else if(command === 'queue'){
     queueManager.Queue(ComfyJS);
@@ -312,8 +326,9 @@ obs.connect({
     })
     .then(() => {
         console.log(`Success! We're connected & authenticated.`);
-
-        return obs.send('GetSceneItemProperties', {item: "Nerd Alert.mov"});
+        obs.send('GetSceneItemProperties', {item: "Nerd Alert.mov"});
+        obs.send('GetSceneItemProperties', {item: "BigBrain"});
+        obs.send('GetSceneItemProperties', {item: "The More You Know.mov"});
     })
     .then(data => {
         sceneItemProperties = data;

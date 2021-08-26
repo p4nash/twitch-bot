@@ -261,9 +261,6 @@ function initialize(){channelNameString=localStorage.getItem("twitch");
   }else{
     $("#chatterEventOn").prop("checked", chatterEventOn);
   }
-  //
-  // if(channelNameString == null)
-  //   window.location.href = "index.html";
 }
 
 $('.close').click(function(){
