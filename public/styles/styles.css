@@ -9,13 +9,13 @@ body{
   height: 100vh;
 
   padding-top: 30px;
-  background-color: rgba(40, 10, 60, 1);
+  background-color: rgba(0, 0, 0, 1);
   color: white;
   font-weight:500;
   font-size: 14px;
   overflow: hidden!important;
 
-  background-image: url('https://wallpapercave.com/wp/wp4676582.jpg');
+  /* background-image: url('https://wallpapercave.com/wp/wp4676582.jpg'); */
   background-size: cover;
   background-repeat: no-repeat;
 }
@@ -35,13 +35,13 @@ h1, h3{
 #eventsList, #messagesList{
   height: 75vh;
   /* border: 2px solid white; */
-  background-color: rgba(40, 10, 60, 0.25);
-  backdrop-filter: blur(5px);
+  /* background-color: rgba(255, 255, 255, 0.05); */
+
+  outline: 1px solid rgba(255, 255, 255, 0.15);
   padding: 20px;
   border-radius: 10px;
   overflow-y: visible!important;
   overflow-x: hidden;
-  box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.2);
 }
 /* Hide scrollbar for Chrome, Safari and Opera */
 #eventsList::-webkit-scrollbar, #messagesList::-webkit-scrollbar {
@@ -77,15 +77,16 @@ h1, h3{
 }
 
 .message, .event{
-  backdrop-filter: blur(5px);
-  margin-bottom: 20px;
-  border-radius: 10px;
   padding: 20px;
-  box-shadow: 0px 0px 20px rgba(40, 10, 60, 0.75);
+  border-top: 1px solid rgba(255, 255, 255, 0.4);
 }
+
+.message:last-of-type, .event:last-of-type{
+  border-bottom: 1px solid rgba(255, 255, 255, 0.4);
+}
+
 .event{
-  /* background-color: rgba(40, 10, 60, 0.9); */
-  background-image: linear-gradient(to right, #280a3c, #071d4a);
+  background-color: rgba(0, 0, 0, 0.5);
   font-size: 1.2em;
   font-weight: 400;
   color: white;
@@ -164,8 +165,8 @@ p{
 }
 
 .normal{
-  /* background-color: rgba(40, 10, 60, 0.85); */
-  background-image: linear-gradient(to right, #280a3c, #071d4a);
+  /* background-image: linear-gradient(to right, #280a3c, #071d4a); */
+  border-top: 1px solid rgba(255, 255, 255, 0.4);
 }
 
 .unhighlight{
@@ -264,8 +265,6 @@ button.close{
   font-size: 1.2em;
   font-weight: 400;
   color: white;
-  backdrop-filter: blur(20px);
-  box-shadow: 0px 0px 10px rgba(40, 10, 60, 0.75);
   border-radius: 10px;
   text-align: center;
   padding: 20px;
@@ -307,7 +306,6 @@ input.checkbox{
   padding: 20px;
   background-color: #ff0055;
   border-radius: 0 0 20px 20px;
-  box-shadow: 0px 0px 10px rgba(255, 0, 85, 0.75);
   color: #280a3c;
   font-weight: 1500;
 }

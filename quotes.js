@@ -14,8 +14,22 @@ firebaseManager.InitialiseFirebase(function(){
   for(var i = 0; i < databaseNames.length; i++){
     ReadDatabase(databaseNames[i]);
   }
-  
+
 });
+
+function SearchKeyword(type, word){
+  var dataList = rawData[type];
+  console.log("Searching keyword");
+  toReturn = [];
+  for(var i = 0; i < dataList.length; i++){
+    if(dataList[i].quotes.includes(word)){
+      toReturn.push(dataList[i].quotes);
+    }
+  }
+
+  console.log(toReturn);
+  return toReturn;
+}
 
 function ReadDatabase(DBname){
   databases[DBname].once('value',function(snap){
@@ -74,4 +88,4 @@ function GetTotalDataNumber(DBname){
   return rawData[DBname].length;
 }
 
-module.exports =  { ReadDatabase, AddData, GetData, GetTotalDataNumber };
+module.exports =  { ReadDatabase, AddData, GetData, GetTotalDataNumber, SearchKeyword };

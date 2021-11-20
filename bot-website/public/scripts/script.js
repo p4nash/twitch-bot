@@ -42,7 +42,7 @@ $(function(){
       for(var i = 0; i < Object.keys(snapshot.val()).length; i++){
         table+="<tr>";
         var key = Object.keys(snapshot.val())[i];
-        table += "<td>" + snapshot.val()[key].quote+"</td>";
+        table += "<td>" + snapshot.val()[key].quotes+"</td>";
         table+="</tr>";
       }
       table+="</table>";

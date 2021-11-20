@@ -47,7 +47,7 @@ $(function(){
   // });
 
   socket.on('reward', function(response){
-    if(response.message != null)
+    if(response.message != null && response.message != "")
       message ="<span class='messageEvent'>"+response.message+"</span>";
     else
       message = '';

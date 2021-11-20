@@ -12,6 +12,8 @@ var cookieParser = require('cookie-parser');
 var quotesManager = require('./quotes.js');
 var commandsManager = require('./commands.js');
 var queueManager = require('./queue.js');
+var socialsManager = require('./socials.js');
+var ArtemisManager = require('./Artemis.js');
 var commands = [];
 var ComfyJS = require("comfy.js");
 
@@ -30,14 +32,12 @@ app
 ComfyJS.onCommand = ( user, command, message, flags, extra ) => {
   // if(user.toLowerCase() == process.env.TWITCH_USERNAME) return;
 
-  // if(command === 'ban'){
-  //   ComfyJS.Say('/ban '+message);
-  //   ComfyJS.Say('/me Banning '+message);
-  // }
-
   if(commandsManager.RespondToCommand(command, message, user, ComfyJS)){
+    // ComfyJS.Say(command + "message");
     return;
   }
+  if(command === "artemis")
+    ComfyJS.Say(ArtemisManager.getSaying("bit"));
 
   if(command === "addquote"){
   quotes = quotesManager.AddData("quotes", message, ComfyJS);
@@ -48,15 +48,27 @@ ComfyJS.onCommand = ( user, command, message, flags, extra ) => {
     quoteNo = Math.floor(Math.random() * quotesManager.GetTotalDataNumber("quotes"));
     console.log("Looking for quote"+quoteNo);
   }
-  else{
+  else if(!Number.isNaN(parseInt(message))){
     quoteNo = parseInt(message);
-  }
-  if(quoteNo == null || quoteNo == undefined || Number.isNaN(quoteNo) || quoteNo == -1) {
-    ComfyJS.Say("/me Quote not found.");
-    return;
-  }
-  else{
-    ComfyJS.Say("/me "+quotesManager.GetData("quotes", quoteNo));
+
+    if((quoteNo == null || quoteNo == undefined || quoteNo == -1) && Number.isNaN(quoteNo)) {
+      ComfyJS.Say("/me Quote not found.");
+      return;
+    }
+    else{
+      ComfyJS.Say("/me "+quotesManager.GetData("quotes", quoteNo));
+    }
+  }else{
+    quotesToSay = quotesManager.SearchKeyword("quotes", message);
+
+    if(quotesToSay.length > 0){
+      for(var i = 0; i < quotesToSay.length; i++){
+        ComfyJS.Say("/me " +quotesToSay[i]);
+      }
+    }
+    else{
+      ComfyJS.Say("No quotes found using keyword: "+message);
+    }
   }
 }if(command === "addjoke"){
     jokes = quotesManager.AddData("jokes", message, ComfyJS);
@@ -83,7 +95,21 @@ ComfyJS.onCommand = ( user, command, message, flags, extra ) => {
     commandsManager.RemoveCommand(message, ComfyJS);
   }else if(command === "editcommand" && (flags.mod == true || flags.broadcaster == true)){
     commandsManager.EditCommand(message, ComfyJS);
-  }else if (command === "nerdalert" && (flags.mod == true || flags.broadcaster == true)){
+  }
+  else if (command === "socials" && (flags.mod == true || flags.broadcaster == true)){
+    var message = "";
+
+    for (var link in socialsManager.Links) {
+      message = `${link}: ${socialsManager.Links[link]}`;
+      ComfyJS.Say(message);
+    }
+
+  }
+  else if (command === "so"){
+    var message = message+ " is a damn wonderful bean and you should check them out at https://twitch.tv/"+message;
+    ComfyJS.Say(message);
+  }
+  else if (command === "nerdalert" && (flags.mod == true || flags.broadcaster == true)){
     console.log("Nerd alert!");
     obs.send('SetSceneItemProperties', {item: "Nerd Alert.mov", visible: true});
 
@@ -104,7 +130,22 @@ ComfyJS.onCommand = ( user, command, message, flags, extra ) => {
     setTimeout(()=>{
       obs.send('SetSceneItemProperties',  {item: "The More You Know.mov", visible: false});
     }, 10000);
-  }else if(command === 'join'){
+  }
+  else if(command === 'live' && (flags.mod == true || flags.broadcaster == true))
+  {
+    obs.send('GetCurrentScene').then((data)=>{
+      if(data.name != "Live"){
+        obs.send('SetCurrentScene',  {'scene-name': "Live"});
+        ComfyJS.Say("/me Switching to the live scene.");
+      }else{
+        obs.send('SetSceneItemProperties', {item:"Window Capture", visible: false});
+        obs.send('SetSceneItemProperties', {item:"Display Capture", visible: false});
+        obs.send('SetSceneItemProperties', {item:"Game Capture", visible: true});
+        ComfyJS.Say("/me Oops! We were already on the live scene. If you still can't see the game let me know cause I'm an idiot.");
+      }
+    });
+  }
+  else if(command === 'join'){
     queueManager.Join(ComfyJS, user);
   }else if(command === 'leave'){
     queueManager.Leave(ComfyJS, user);
@@ -159,8 +200,6 @@ io.on('connection', (socket) => {
   });
 
   ComfyJS.onChat = ( user, command, message, flags, extra ) => {
-    console.log( user + " send a message.");
-    console.log(user);
     socket.emit('chat',{
       user: user,
       command: command,
@@ -171,7 +210,6 @@ io.on('connection', (socket) => {
   };
 
   ComfyJS.onJoin=(user, self, extra) => {
-    console.log( user + " joined chat.");
     socket.emit("join", {
       user: user,
       self: self,
@@ -180,7 +218,6 @@ io.on('connection', (socket) => {
   }
 
   ComfyJS.onPart=(user, self, extra) => {
-    console.log( user + " left chat.");
     socket.emit("part", {
       user: user,
       self: self,
@@ -220,6 +257,11 @@ io.on('connection', (socket) => {
 
   ComfyJS.onCheer=(user, message, bits, flags, extra) => {
     console.log( user + " cheered for " + bits + " bits.");
+
+    if(user.toLowerCase() == "art3mis_plays"){
+      ComfyJS.Say(ArtemisManager.getSaying("bit"));
+    }
+
     socket.emit("cheer", {
       user: user,
       message: message,
@@ -252,6 +294,10 @@ io.on('connection', (socket) => {
   }
 
   ComfyJS.onSubGift=( gifterUser, streakMonths, recipientUser, senderCount, subTierInfo, extra ) => {
+    if(gifterUser.toLowerCase() == "art3mis_plays"){
+      ComfyJS.Say(ArtemisManager.getSaying("sub"));
+    }
+
     console.log( gifterUser + " gifted sub to " + recipientUser + " months.");
     socket.emit("subgift", {
       gifterUser: gifterUser,
