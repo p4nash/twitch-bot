@@ -26,8 +26,6 @@ function SearchKeyword(type, word){
       toReturn.push(dataList[i].quotes);
     }
   }
-
-  console.log(toReturn);
   return toReturn;
 }
 
@@ -45,7 +43,6 @@ function AddData(type, data, client){
 }
 
 function GetData(type, index){
-  console.log(rawData.quotes);
   var dataList = rawData[type];
   if(dataList[index] != undefined)
     return dataList[index][type];
@@ -81,7 +78,7 @@ function SaveData(DBname, data, client){
       client.Say("/me Quote added successfully.");
     }
   });
-
+  
 }
 
 function GetTotalDataNumber(DBname){

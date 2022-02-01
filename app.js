@@ -46,9 +46,17 @@ ComfyJS.onCommand = ( user, command, message, flags, extra ) => {
 
   if(message === "" || message === null || message === undefined){
     quoteNo = Math.floor(Math.random() * quotesManager.GetTotalDataNumber("quotes"));
-    console.log("Looking for quote"+quoteNo);
+    console.log("Looking for quote "+quoteNo);
+
+    if((quoteNo == null || quoteNo == undefined || quoteNo == -1) && Number.isNaN(quoteNo)) {
+      ComfyJS.Say("/me Quote not found.");
+      return;
+    }
+    else{
+      ComfyJS.Say("/me "+quotesManager.GetData("quotes", quoteNo));
+    }
   }
-  else if(!Number.isNaN(parseInt(message))){
+  else if(parseInt(message) >= 0){
     quoteNo = parseInt(message);
 
     if((quoteNo == null || quoteNo == undefined || quoteNo == -1) && Number.isNaN(quoteNo)) {
@@ -234,6 +242,13 @@ io.on('connection', (socket) => {
       message: message,
       extra: extra
     });
+    if(reward == "Virtual Marty")
+    {
+      obs.send('SetSceneItemProperties',  {'scene-name': "Cameras", item: "Marty Cam", visible: true});
+      setTimeout(function(){
+        obs.send('SetSceneItemProperties',  {'scene-name': "Cameras", item: "Marty Cam", visible: false});
+      }, 60 * 1000);
+    }
   }
 
   ComfyJS.onHosted=(user, viewers, autohost, extra) => {
@@ -375,10 +390,12 @@ obs.connect({
         obs.send('GetSceneItemProperties', {item: "Nerd Alert.mov"});
         obs.send('GetSceneItemProperties', {item: "BigBrain"});
         obs.send('GetSceneItemProperties', {item: "The More You Know.mov"});
+        obs.send('GetSceneItemProperties', {item: "Marty Cam", 'scene-name': "Cameras"});
     })
     .then(data => {
         sceneItemProperties = data;
     })
     .catch(err => { // Promise convention dicates you have a catch on every chain.
         console.log(err);
+        console.log("OBS Web Socket failed to initialize.");
     });

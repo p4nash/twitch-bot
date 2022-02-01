@@ -1,0 +1,35 @@
+#alert-gif{
+  display: inline-block;
+}
+
+#alert-text{
+  display: inline-block;
+
+  margin: 0px 0px 0px 40px;
+  position: absolute;
+  top: 50%;
+  -ms-transform: translateY(-50%);
+  transform: translateY(-50%);
+}
+
+#alert{
+  display: none;
+  height: 300px;
+  position: relative;
+}
+
+#alert-text>p{
+  font-family: 'Bebas Neue', cursive;
+  font-size: 3em;
+  color: #ff004c;
+
+  margin: 0;
+}
+
+#alert-text>p#alert-message{
+  font-family: 'Bebas Neue', cursive;
+  font-size: 2em;
+  color: white;
+
+  display: none;
+}
