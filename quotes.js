@@ -2,7 +2,7 @@ var rawData = {};
 var firebaseManager = require('./firebase.js');
 var databases = {};
 
-var databaseNames = ["quotes", "jokes"];
+var databaseNames = ["quotes", "jokes", "timerFunctions"];
 
 firebaseManager.InitialiseFirebase(function(){
 
@@ -22,7 +22,8 @@ function SearchKeyword(type, word){
   console.log("Searching keyword");
   toReturn = [];
   for(var i = 0; i < dataList.length; i++){
-    if(dataList[i].quotes.includes(word)){
+    if(dataList[i].quotes.includes(word+" ")
+    || dataList[i].quotes.includes(" "+word)){
       toReturn.push(dataList[i].quotes);
     }
   }
@@ -37,6 +38,7 @@ function ReadDatabase(DBname){
     return snap.val();
   });
 }
+
 function AddData(type, data, client){
   SaveData(type, data, client);
   return rawData[type];
@@ -78,11 +80,11 @@ function SaveData(DBname, data, client){
       client.Say("/me Quote added successfully.");
     }
   });
-  
+
 }
 
 function GetTotalDataNumber(DBname){
   return rawData[DBname].length;
 }
 
-module.exports =  { ReadDatabase, AddData, GetData, GetTotalDataNumber, SearchKeyword };
+module.exports =  { ReadDatabase, AddData, GetData, GetTotalDataNumber, SearchKeyword, firebaseManager };

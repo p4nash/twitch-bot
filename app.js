@@ -10,6 +10,7 @@ var querystring = require('querystring');
 var cookieParser = require('cookie-parser');
 
 var quotesManager = require('./quotes.js');
+var timerManager = require('./timerFunctions.js');
 var commandsManager = require('./commands.js');
 var queueManager = require('./queue.js');
 var socialsManager = require('./socials.js');
@@ -30,10 +31,8 @@ app
 .use(bodyParser.urlencoded({  extended:true }));
 
 ComfyJS.onCommand = ( user, command, message, flags, extra ) => {
-  // if(user.toLowerCase() == process.env.TWITCH_USERNAME) return;
 
   if(commandsManager.RespondToCommand(command, message, user, ComfyJS)){
-    // ComfyJS.Say(command + "message");
     return;
   }
   if(command === "artemis")
@@ -104,6 +103,10 @@ ComfyJS.onCommand = ( user, command, message, flags, extra ) => {
   }else if(command === "editcommand" && (flags.mod == true || flags.broadcaster == true)){
     commandsManager.EditCommand(message, ComfyJS);
   }
+  else if(command === "addtimer"){
+    console.log("Adding timer");
+    timerManager.AddData(message, ComfyJS);
+  }
   else if (command === "socials" && (flags.mod == true || flags.broadcaster == true)){
     var message = "";
 
@@ -119,24 +122,24 @@ ComfyJS.onCommand = ( user, command, message, flags, extra ) => {
   }
   else if (command === "nerdalert" && (flags.mod == true || flags.broadcaster == true)){
     console.log("Nerd alert!");
-    obs.send('SetSceneItemProperties', {item: "Nerd Alert.mov", visible: true});
+    obs.send('SetSceneItemProperties', {'scene-name': "Overlays", item: "Nerd Alert.mov", visible: true});
 
     setTimeout(()=>{
-      obs.send('SetSceneItemProperties',  {item: "Nerd Alert.mov", visible: false});
+      obs.send('SetSceneItemProperties',  {'scene-name': "Overlays", item: "Nerd Alert.mov", visible: false});
     }, 3000);
   }else if(command === "bigbrain" && (flags.mod == true || flags.broadcaster == true)){
     console.log("Big Brain!");
-    obs.send('SetSceneItemProperties', {item: "BigBrain", visible: true});
+    obs.send('SetSceneItemProperties', {'scene-name': "Overlays", item: "BigBrain", visible: true});
 
     setTimeout(()=>{
-      obs.send('SetSceneItemProperties',  {item: "BigBrain", visible: false});
+      obs.send('SetSceneItemProperties',  {'scene-name': "Overlays", item: "BigBrain", visible: false});
     }, 10000);
   }else if(command === "fact" && (flags.mod == true || flags.broadcaster == true)){
     console.log("The more you know");
-    obs.send('SetSceneItemProperties', {item: "The More You Know.mov", visible: true});
+    obs.send('SetSceneItemProperties', {'scene-name': "Overlays", item: "The More You Know.mov", visible: true});
 
     setTimeout(()=>{
-      obs.send('SetSceneItemProperties',  {item: "The More You Know.mov", visible: false});
+      obs.send('SetSceneItemProperties',  {'scene-name': "Overlays", item: "The More You Know.mov", visible: false});
     }, 10000);
   }
   else if(command === 'live' && (flags.mod == true || flags.broadcaster == true))
@@ -205,6 +208,8 @@ io.on('connection', (socket) => {
       auth_token = msg;
 
     ComfyJS.Init(process.env.TWITCH_TARGET_CHANNEL, msg);
+
+    timerManager.Initialize(ComfyJS);
   });
 
   ComfyJS.onChat = ( user, command, message, flags, extra ) => {
@@ -223,6 +228,7 @@ io.on('connection', (socket) => {
       self: self,
       extra:extra
     });
+    console.log(user + " joined");
   }
 
   ComfyJS.onPart=(user, self, extra) => {
@@ -231,6 +237,7 @@ io.on('connection', (socket) => {
       self: self,
       extra:extra
     });
+    console.log(user + " left");
   }
 
   ComfyJS.onReward = ( user, reward, cost, message, extra ) => {
@@ -248,6 +255,19 @@ io.on('connection', (socket) => {
       setTimeout(function(){
         obs.send('SetSceneItemProperties',  {'scene-name': "Cameras", item: "Marty Cam", visible: false});
       }, 60 * 1000);
+    }else if (reward == "FNAF Jumpscare"){
+      var jumpscare = "FNAF"+Math.floor(Math.random()*9 + 1)+".mp4";
+      obs.send('SetSceneItemProperties', {'scene-name': "JUMPSCARES", item: jumpscare, visible: true});
+
+      setTimeout(()=>{
+        obs.send('SetSceneItemProperties',  {'scene-name': "JUMPSCARES", item: jumpscare, visible: false});
+      }, 10000);
+    }else if (reward == "Gingie Jumpscare"){
+      obs.send('SetSceneItemProperties', {'scene-name': "JUMPSCARES", item: "Gingie Jumpscare.webm", visible: true});
+
+      setTimeout(()=>{
+        obs.send('SetSceneItemProperties',  {'scene-name': "JUMPSCARES", item: "Gingie Jumpscare.webm", visible: false});
+      }, 10000);
     }
   }
 
@@ -356,14 +376,14 @@ app.get('/', function(req, res){
 app.get('/login', function(req, res){
   console.log("Authorizing user");
   var options = 'https://id.twitch.tv/oauth2/authorize?'+
-     querystring.stringify({
-       client_id: process.env.CLIENT_ID,
-       redirect_uri: 'http://localhost:8888/feed.html',
-       response_type: 'token',
-       scope: 'channel:manage:redemptions channel:read:redemptions channel:moderate user:read:email chat:edit chat:read'
-     });
+  querystring.stringify({
+   client_id: process.env.CLIENT_ID,
+   redirect_uri: 'http://localhost:8888/feed.html',
+   response_type: 'token',
+   scope: 'channel:manage:redemptions channel:read:redemptions channel:moderate user:read:email chat:edit chat:read'
+  });
 
-     res.redirect(options);
+  res.redirect(options);
 });
 
 app.get('/ban', function(req, res){
@@ -387,9 +407,9 @@ obs.connect({
     })
     .then(() => {
         console.log(`Success! We're connected & authenticated.`);
-        obs.send('GetSceneItemProperties', {item: "Nerd Alert.mov"});
-        obs.send('GetSceneItemProperties', {item: "BigBrain"});
-        obs.send('GetSceneItemProperties', {item: "The More You Know.mov"});
+        obs.send('GetSceneItemProperties', {item: "Nerd Alert.mov",'scene-name': "Overlays"});
+        obs.send('GetSceneItemProperties', {item: "BigBrain",'scene-name': "Overlays"});
+        obs.send('GetSceneItemProperties', {item: "The More You Know.mov", 'scene-name': "Overlays"});
         obs.send('GetSceneItemProperties', {item: "Marty Cam", 'scene-name': "Cameras"});
     })
     .then(data => {
